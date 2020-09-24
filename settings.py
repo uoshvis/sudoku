@@ -1,0 +1,5 @@
+WIDTH = 600
+HEIGHT = 600
+
+# Colours
+WHITE = (255, 255, 255)
