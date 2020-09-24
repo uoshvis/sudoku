@@ -22,6 +22,17 @@ class Grid:
         self.width = width
         self.height = height
 
+    def draw(self, win):
+        # Draw grid lines
+        gap = self.width / 9
+        for i in range(self.rows + 1):
+            if i % 3 == 0:
+                thick = 4
+            else:
+                thick = 1
+            pygame.draw.line(win, (0, 0, 0), (0, i * gap), (self.width, i * gap), thick)
+            pygame.draw.line(win, (0, 0, 0), (i * gap, 0), (i * gap, self.height), thick)
+
 
 def redraw_window(win, board, play_time, strikes):
     win.fill((255, 255, 255))
@@ -32,6 +43,8 @@ def redraw_window(win, board, play_time, strikes):
     # Draw strikes
     text = fnt.render("X " * strikes, 1, (255, 0, 0))
     win.blit(text, (20, 560))
+    # Draw grid and board
+    board.draw(win)
 
 
 def format_time(secs):
@@ -51,7 +64,9 @@ def main():
     running = True
 
     while running:
+
         play_time = round(time.time() - start)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
