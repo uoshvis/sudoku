@@ -8,6 +8,8 @@ class App:
         pygame.init()
         self.window = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
+        self.grid = testBoard
+        self.rows = 9
 
     def run(self):
         while self.running:
@@ -30,4 +32,35 @@ class App:
 
     def draw(self):
         self.window.fill(WHITE)
+        self.drawGrid(self.window)
         pygame.display.update()
+
+    def drawGrid(self, window):
+        pygame.draw.rect(
+            window,
+            BLACK,
+            (gridPos[0], gridPos[1], BOARD_WIDTH, BOARD_HEIGHT),
+            2
+        )
+
+        for x in range(self.rows):
+            if x % 3 == 0:
+                thick = 2
+            else:
+                thick = 1
+            # Vertical lines
+            pygame.draw.line(
+                window,
+                BLACK,
+                (gridPos[0] + (x * cellSize), gridPos[1]),
+                (gridPos[0] + (x * cellSize), gridPos[1] + BOARD_HEIGHT),
+                thick
+            )
+            # Horizontal lines
+            pygame.draw.line(
+                window,
+                BLACK,
+                (gridPos[0], gridPos[1] + (x * cellSize)),
+                (gridPos[0] + BOARD_WIDTH, gridPos[1] + (x * cellSize)),
+                thick
+            )
