@@ -24,10 +24,13 @@ class App:
 
     def run(self):
         while self.running:
-            if self.state == 'playing':
+            if not self.finished:
                 self.playing_events()
                 self.playing_update()
                 self.playing_draw()
+            if self.finished:
+                print('finished')
+                self.running = False
         pygame.quit()
 
         sys.exit()
@@ -60,6 +63,11 @@ class App:
                         # Cell changed
                         self.grid[self.selected[1]][self.selected[0]] = int(event.unicode)
                         self.cellChanged = True
+                    if event.key == pygame.K_DELETE:
+                        self.grid[self.selected[1]][self.selected[0]] = 0
+                        if [self.selected[0], self.selected[1]] in self.incorrectCells:
+                            self.incorrectCells.remove([self.selected[0], self.selected[1]])
+                        self.cellChanged = True
 
     def playing_update(self):
         self.mousePos = pygame.mouse.get_pos()
@@ -70,6 +78,8 @@ class App:
                 self.checkAllCells()
                 if len(self.incorrectCells) == 0:
                     self.finished = True
+                else:
+                    print('Wrong cells exist')
 
     def playing_draw(self):
         self.window.fill(WHITE)
@@ -92,8 +102,7 @@ class App:
 # Board checking functions
 
     def checkAllCells(self):
-        print('checking')
-        print(self.lockedCells)
+        print('Checking all cells')
         for row in range(len(self.grid)):
             for col in range(len(self.grid[0])):
                 if [row, col] not in self.lockedCells:
