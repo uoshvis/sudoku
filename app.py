@@ -2,6 +2,7 @@ import pygame
 import sys
 from settings import *
 from buttonClass import *
+from solver import *
 
 
 class App:
@@ -9,14 +10,15 @@ class App:
         pygame.init()
         self.window = pygame.display.set_mode((WIDTH, HEIGHT))
         self.running = True
-        self.grid = testBoard2
+        self.grid = testBoard3
         self.selected = None
         self.mousePos = None
         self.state = 'playing'
+        self.finished = False
+        self.cellChanged = False
         self.playingButtons = []
-        self.menuButtons = []
-        self. endButtons = []
         self.lockedCells = []
+        self.incorrectCells = []
         self.font = pygame.font.SysFont('arial', cellSize // 2)
         self.load()
 
@@ -47,16 +49,27 @@ class App:
                     self.selected = selected
                 else:
                     self.selected = None
+                    for button in self.playingButtons:
+                        if button.highlighted:
+                            button.click()
+
             # User types a key
             if event.type == pygame.KEYDOWN:
                 if self.selected != None and self.selected not in self.lockedCells:
                     if self.isInt(event.unicode):
+                        # Cell changed
                         self.grid[self.selected[1]][self.selected[0]] = int(event.unicode)
+                        self.cellChanged = True
 
     def playing_update(self):
         self.mousePos = pygame.mouse.get_pos()
         for button in self.playingButtons:
             button.update(self.mousePos)
+        if self.cellChanged:
+            if self.allCellsDone():
+                self.checkAllCells()
+                if len(self.incorrectCells) == 0:
+                    self.finished = True
 
     def playing_draw(self):
         self.window.fill(WHITE)
@@ -68,11 +81,36 @@ class App:
             self.drawSelection(self.window, self.selected)
 
         self.shadeLockedCells(self.window, self.lockedCells)
+        self.shadeIncorrectCells(self.window, self.incorrectCells)
 
         self.drawNumbers(self.window)
 
         self.drawGrid(self.window)
         pygame.display.update()
+        self.changed = False
+
+# Board checking functions
+
+    def checkAllCells(self):
+        print('checking')
+        print(self.lockedCells)
+        for row in range(len(self.grid)):
+            for col in range(len(self.grid[0])):
+                if [row, col] not in self.lockedCells:
+                    value = self.grid[col][row]
+                    if value != 0 and not valid(self.grid, value, (col, row)):
+                        if [row, col] not in self.incorrectCells:
+                            self.incorrectCells.append([row, col])
+                    elif value != 0 and valid(self.grid, value, (col, row)):
+                        if [row, col] in self.incorrectCells:
+                            self.incorrectCells.remove([row, col])
+
+    def allCellsDone(self):
+        for row in self.grid:
+            for number in row:
+                if number == 0:
+                    return False
+        return True
 
 # Helper functions
 
@@ -81,6 +119,17 @@ class App:
             pygame.draw.rect(
                 window,
                 LOCKEDCELLCOLOUR,
+                (
+                    (cell[0] * cellSize) + gridPos[0],
+                    (cell[1] * cellSize) + gridPos[1],
+                    cellSize, cellSize)
+            )
+
+    def shadeIncorrectCells(self, window, incorrectCells):
+        for cell in incorrectCells:
+            pygame.draw.rect(
+                window,
+                INCORRECTCELLCOLOUR,
                 (
                     (cell[0] * cellSize) + gridPos[0],
                     (cell[1] * cellSize) + gridPos[1],
@@ -110,8 +159,7 @@ class App:
         pygame.draw.rect(
             window,
             BLACK,
-            (gridPos[0], gridPos[1], BOARD_WIDTH, BOARD_HEIGHT),
-            2)
+            (gridPos[0], gridPos[1], BOARD_WIDTH, BOARD_HEIGHT), 2)
 
         for x in range(ROWS):
             # Vertical lines
@@ -140,7 +188,10 @@ class App:
             return (row_x, row_y)
 
     def loadButtons(self):
-        self.playingButtons.append(Button(20, 40, 100, 40))
+        self.playingButtons.append(Button(20, 40, WIDTH // 7, 40,
+                                          function=self.checkAllCells,
+                                          colour=(27, 142, 207),
+                                          text='Check'))
 
     def textToScreen(self, window, text, pos):
         font = self.font.render(text, False, BLACK)
