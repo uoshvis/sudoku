@@ -20,7 +20,6 @@ class App:
         self.font = pygame.font.SysFont('arial', cellSize // 2)
         self.load()
 
-
     def run(self):
         while self.running:
             if self.state == 'playing':
@@ -30,12 +29,15 @@ class App:
         pygame.quit()
 
         sys.exit()
+
 # Playing state functions
 
     def playing_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+
+            # User clicks
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
@@ -45,6 +47,11 @@ class App:
                     self.selected = selected
                 else:
                     self.selected = None
+            # User types a key
+            if event.type == pygame.KEYDOWN:
+                if self.selected != None and self.selected not in self.lockedCells:
+                    if self.isInt(event.unicode):
+                        self.grid[self.selected[1]][self.selected[0]] = int(event.unicode)
 
     def playing_update(self):
         self.mousePos = pygame.mouse.get_pos()
@@ -151,3 +158,9 @@ class App:
                 if num != 0:
                     self.lockedCells.append([xidx, yidx])
 
+    def isInt(self, string):
+        try:
+            int(string)
+            return True
+        except:
+            return False
