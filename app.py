@@ -1,9 +1,10 @@
 import pygame
 import sys
-from settings import *
-from buttonClass import *
-from solver import valid
 from time import sleep
+
+from buttonClass import Button
+from settings import *
+from solver import valid
 
 
 class App:
