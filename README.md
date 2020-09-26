@@ -15,4 +15,4 @@ Python sudoku game with GUI using pygame
     - [ ] time display
     - [ ] sudoku board load option from external source
     - [ ] refactor code
-    - [ ] have fun :tada:
+    - [ ] have fun
