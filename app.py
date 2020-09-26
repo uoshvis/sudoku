@@ -2,7 +2,7 @@ import pygame
 import sys
 from settings import *
 from buttonClass import *
-from solver import *
+from solver import valid
 from time import sleep
 
 
@@ -14,7 +14,6 @@ class App:
         self.grid = testBoard3
         self.selected = None
         self.mousePos = None
-        self.state = 'playing'
         self.finished = False
         self.cellChanged = False
         self.incorrectCellsExist = False
@@ -104,7 +103,7 @@ class App:
             text = self.font.render("Wrong cells exist", 1, RED)
             self.window.blit(text, (WIDTH // 3, 40))
         if self.finished:
-            text = self.font.render("You are smart", 1, RED)
+            text = self.font.render("You are smart! Bye.", 1, RED)
             self.window.blit(text, (WIDTH // 3, 40))
 
         pygame.display.update()
@@ -235,5 +234,5 @@ class App:
         try:
             int(string)
             return True
-        except:
+        except ValueError:
             return False

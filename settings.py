@@ -13,7 +13,6 @@ LOCKEDCELLCOLOUR = (190, 190, 190)
 INCORRECTCELLCOLOUR = (200, 120, 120)
 
 # Boards
-
 testBoard1 = [[0 for x in range(9)] for x in range(9)]
 testBoard2 = [[7, 8, 0, 4, 0, 0, 1, 2, 0],
               [6, 0, 0, 0, 7, 5, 0, 0, 9],
