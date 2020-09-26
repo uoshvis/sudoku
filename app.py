@@ -3,6 +3,7 @@ import sys
 from settings import *
 from buttonClass import *
 from solver import *
+from time import sleep
 
 
 class App:
@@ -16,6 +17,7 @@ class App:
         self.state = 'playing'
         self.finished = False
         self.cellChanged = False
+        self.incorrectCellsExist = False
         self.playingButtons = []
         self.lockedCells = []
         self.incorrectCells = []
@@ -29,7 +31,7 @@ class App:
                 self.playing_update()
                 self.playing_draw()
             if self.finished:
-                print('finished')
+                sleep(3)
                 self.running = False
         pygame.quit()
 
@@ -73,13 +75,14 @@ class App:
         self.mousePos = pygame.mouse.get_pos()
         for button in self.playingButtons:
             button.update(self.mousePos)
-        if self.cellChanged:
-            if self.allCellsDone():
-                self.checkAllCells()
-                if len(self.incorrectCells) == 0:
-                    self.finished = True
-                else:
-                    print('Wrong cells exist')
+
+        if self.cellChanged and self.checkAllCellsDone():
+            self.checkAllCells()
+            if len(self.incorrectCells) == 0:
+                self.incorrectCellsExist = False
+                self.finished = True
+            else:
+                self.incorrectCellsExist = True
 
     def playing_draw(self):
         self.window.fill(WHITE)
@@ -96,7 +99,16 @@ class App:
         self.drawNumbers(self.window)
 
         self.drawGrid(self.window)
+
+        if self.incorrectCellsExist:
+            text = self.font.render("Wrong cells exist", 1, RED)
+            self.window.blit(text, (WIDTH // 3, 40))
+        if self.finished:
+            text = self.font.render("You are smart", 1, RED)
+            self.window.blit(text, (WIDTH // 3, 40))
+
         pygame.display.update()
+
         self.changed = False
 
 # Board checking functions
@@ -113,8 +125,9 @@ class App:
                     elif value != 0 and valid(self.grid, value, (col, row)):
                         if [row, col] in self.incorrectCells:
                             self.incorrectCells.remove([row, col])
+        self.cellChanged = False
 
-    def allCellsDone(self):
+    def checkAllCellsDone(self):
         for row in self.grid:
             for number in row:
                 if number == 0:
